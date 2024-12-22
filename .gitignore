@@ -21,3 +21,4 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+/vendor/fakerphp/faker/src/Faker/Provider/nl_BE/Text.php
