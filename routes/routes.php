@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 // Auth Routes
 Route::prefix('auth')->group(function () {
+    Route::post('/hello', [AuthController::class, 'hello']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/me', [AuthController::class, 'me'])->middleware('auth:api');
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
