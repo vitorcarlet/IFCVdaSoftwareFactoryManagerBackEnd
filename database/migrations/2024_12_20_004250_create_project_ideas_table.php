@@ -12,8 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('project_ideas', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id(); // Auto-incrementing ID
+            $table->string('name'); // 'name' should be a string
+            $table->text('description')->nullable(); // 'description' should be a text field, nullable if optional
+            $table->foreignId('proponent_id')->constrained('users'); // Foreign key referencing 'users' table
+            $table->timestamps(); // Created_at and updated_at timestamps
         });
     }
 
