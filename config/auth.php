@@ -40,6 +40,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'api' => [
+            'driver' => 'passport',
+            'provider' => 'users',
+            //passwords hashing at least now will not be used, i need to make the things work before thinking about security
+            'hash' => false,
+        ],
     ],
 
     /*
