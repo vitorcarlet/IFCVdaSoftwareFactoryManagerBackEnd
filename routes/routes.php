@@ -1,15 +1,20 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 
 // Auth Routes
 Route::prefix('auth')->group(function () {
-    Route::post('/hello', [AuthController::class, 'hello']);
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::get('/me', [AuthController::class, 'me'])->middleware('auth:api');
-    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api');
+    Route::post('/hello', [AuthController::class, 'hello']); // Public endpoint
+    Route::post('/login', [AuthController::class, 'login']); // Public login endpoint
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/me', [AuthController::class, 'me']); // Protected route for the authenticated user
+        Route::post('/logout', [AuthController::class, 'logout']); // Protected route for logout
+    });
 });
 
+
+//need to use the auth middleware to protect the routes
 // Dashboard Routes
 Route::prefix('dashboard')->middleware('auth:api')->group(function () {
     Route::get('/manager', [DashboardController::class, 'manager']);
