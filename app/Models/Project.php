@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Models;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Project  
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Project extends Model
 {
     use HasFactory;
 
@@ -28,6 +30,17 @@ class Project
 
     public function participants()
     {
-        return $this->belongsToMany(User::class, 'project_participants');
+        return $this->hasMany(ProjectParticipant::class);
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(ProjectDocument::class);
+    }
+
+    public function statusHistory()
+    {
+        return $this->hasMany(ProjectStatusHistory::class);
     }
 }
+
