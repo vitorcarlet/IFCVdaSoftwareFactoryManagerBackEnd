@@ -2,43 +2,32 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
- */
 class UserFactory extends Factory
 {
     /**
-     * The current password being used by the factory.
+     * O nome do modelo associado à factory.
+     *
+     * @var string
      */
-    protected static ?string $password;
+    protected $model = User::class;
 
     /**
-     * Define the model's default state.
+     * Definir o estado padrão para os atributos do modelo.
      *
-     * @return array<string, mixed>
+     * @return array
      */
-    public function definition(): array
+    public function definition()
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'name' => $this->faker->name, // Nome fictício
+            'cpf' => $this->faker->unique()->regexify('[0-9]{11}'), // CPF fictício (11 dígitos únicos)
+            'birth_date' => $this->faker->date('Y-m-d', '2005-01-01'), // Data de nascimento (até 2005 para 18+)
+            'gender' => $this->faker->randomElement(['male', 'female', 'other']), // Gênero aleatório
+            'is_active' => $this->faker->boolean(80), // 80% de chance de ser true
+            'registration_number' => $this->faker->unique()->regexify('[A-Z0-9]{10}'), // Número de registro único
         ];
-    }
-
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
     }
 }
