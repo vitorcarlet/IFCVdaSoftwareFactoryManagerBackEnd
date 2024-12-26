@@ -22,6 +22,13 @@ class DashboardController extends Controller
     }
 
     public function student(){
+        $user = Auth::user();
+        $meetings = $user->meetings()->latest()->take(5)->get();
+        $ideas = ProjectIdea::latest()->take(5)->get();
 
+        return response()->json([
+            'meetings' => $meetings,
+            'ideas' => $ideas,
+        ]);
     }
 }
