@@ -17,13 +17,13 @@ Route::prefix('auth')->group(function () {
 
 //need to use the auth middleware to protect the routes
 // Dashboard Routes
-Route::prefix('dashboard')->middleware('auth:api')->group(function () {
+Route::prefix('dashboard')->middleware('auth:sanctum')->group(function () {
     Route::get('/manager', [DashboardController::class, 'manager']);
     Route::get('/student', [DashboardController::class, 'student']);
 });
 
 // Idea Routes
-Route::prefix('ideas')->middleware('auth:api')->group(function () {
+Route::prefix('ideas')->middleware('auth:sanctum')->group(function () {
     Route::post('/', [IdeaController::class, 'store']);
     Route::get('/', [IdeaController::class, 'index']);
     Route::get('/{id}', [IdeaController::class, 'show']);
@@ -32,7 +32,7 @@ Route::prefix('ideas')->middleware('auth:api')->group(function () {
 });
 
 // Project Routes
-Route::prefix('projects')->middleware('auth:api')->group(function () {
+Route::prefix('projects')->middleware('auth:sanctum')->group(function () {
     Route::post('/', [ProjectController::class, 'store']);
     Route::get('/', [ProjectController::class, 'index']);
     Route::get('/my-projects', [ProjectController::class, 'myProjects']);
