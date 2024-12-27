@@ -15,7 +15,13 @@ class Meeting extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        // Add your columns here if needed
+        'title',
+        'desc',
+        'start_date',
+        'status',
+        'manager',
+        'participants',
+        'project_id',
     ];
 
     /**
