@@ -3,17 +3,17 @@
 namespace Database\Factories;
 
 use App\Models\User;
-use App\Models\UserCredential;
+use App\Models\UserCredentials;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class UserCredentialFactory extends Factory
+class UserCredentialsFactory extends Factory
 {
     /**
      * O nome do modelo associado à factory.
      *
      * @var string
      */
-    protected $model = UserCredential::class;
+    protected $model = UserCredentials::class;
 
     /**
      * Definir o estado padrão para os atributos do modelo.

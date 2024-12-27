@@ -6,7 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\UserCredentials;
 
-class UserCredentialSeeder extends Seeder
+class UserCredentialsSeeder extends Seeder
 {
     /**
      * Executar o seeder.
