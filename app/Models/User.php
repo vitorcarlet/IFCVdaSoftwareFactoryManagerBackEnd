@@ -25,7 +25,6 @@ class User extends Authenticatable
         'is_active',
         'registration_number',
         'email',
-        'password',
     ];
 
     /**
@@ -34,7 +33,6 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
         'remember_token',
     ];
 
@@ -47,7 +45,6 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
             'is_active' => 'boolean',
             'birth_date' => 'date',
         ];
@@ -59,13 +56,13 @@ class User extends Authenticatable
     }
 
     // Add relationships for roles and permissions if needed
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class);
-    }
+    // public function roles()
+    // {
+    //     return $this->belongsToMany(Role::class);
+    // }
 
-    public function permissions()
-    {
-        return $this->belongsToMany(Permission::class);
-    }
+    // public function permissions()
+    // {
+    //     return $this->belongsToMany(Permission::class);
+    // }
 }

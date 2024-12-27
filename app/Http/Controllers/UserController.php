@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UserCredential;
+use App\Models\UserCredentials;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -15,7 +15,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $credentials = UserCredential::with('user')->get();
+        $credentials = UserCredentials::with('user')->get();
         return response()->json($credentials);
     }
 
@@ -25,21 +25,43 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+     //{
+//     "name": "John Doe",
+//     "gender": "male",
+//     "email": "johndoe@example.com",
+//     "login": "johndoe123",
+//     "password": "password123"
+// }
+
     public function store(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
+            
+            'name' => 'required|string|max:255', 
+            'gender' => 'required|string|in:male,female,other',
+            'email' => 'required|email|unique:users,email|max:255',
+
             'login' => 'required|unique:user_credentials,login',
             'password' => 'required|min:8',
         ]);
 
-        $credential = UserCredential::create([
+        $user = \App\Models\User::create([
+            'name' => $request->name,
+            'gender' => $request->gender,
+            'email' => $request->email,
+        ]);
+
+        $credential = UserCredentials::create([
             'user_id' => $request->user_id,
             'login' => $request->login,
             'password' => Hash::make($request->password),
         ]);
 
-        return response()->json($credential, 201);
+        return response()->json([
+            'user' => $user,
+            'credentials' => $credential,
+        ], 201);
     }
 
     /**
@@ -50,7 +72,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $credential = UserCredential::with('user')->findOrFail($id);
+        $credential = UserCredentials::with('user')->findOrFail($id);
         return response()->json($credential);
     }
 
@@ -68,7 +90,7 @@ class UserController extends Controller
             'password' => 'sometimes|min:8',
         ]);
 
-        $credential = UserCredential::findOrFail($id);
+        $credential = UserCredentials::findOrFail($id);
         $credential->update([
             'login' => $request->login ?? $credential->login,
             'password' => $request->password ? Hash::make($request->password) : $credential->password,
@@ -85,7 +107,7 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        $credential = UserCredential::findOrFail($id);
+        $credential = UserCredentials::findOrFail($id);
         $credential->delete();
 
         return response()->json(['message' => 'User credential deleted successfully.']);
