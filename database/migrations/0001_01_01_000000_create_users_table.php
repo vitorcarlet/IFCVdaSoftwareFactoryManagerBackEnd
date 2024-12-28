@@ -16,11 +16,12 @@ class CreateUsersTable extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id(); // Primary Key
             $table->string('name');
-            $table->string('cpf')->unique(); // Unique CPF (Brazilian ID)
+            $table->string('cpf')->unique()->nullable(); // Unique CPF (Brazilian ID)
             $table->date('birth_date'); // Birth date
             $table->enum('gender', ['male', 'female', 'other'])->nullable(); // Gender
             $table->boolean('is_active')->default(true); // User active status
-            $table->string('registration_number')->unique(); // Registration Number
+            $table->string('registration_number')->unique()->nullable(); // Registration Number
+            $table->string('email')->unique(); // Unique Email
             $table->timestamps(); // created_at and updated_at
 
             // Add indices for performance optimization
