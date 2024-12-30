@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\UserCredentials;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -26,61 +27,61 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-     //{
-//     "name": "John Doe",
-//     "gender": "male",
-//     "email": "johndoe@example.com",
-//     "login": "johndoe123",
-//     "password": "password123"
-// }
+    //{
+    //     "name": "John Doe",
+    //     "gender": "male",
+    //     "email": "johndoe@example.com",
+    //     "login": "johndoe123",
+    //     "password": "password123"
+    // }
 
-public function store(Request $request)
-{
-    // Validação personalizada para verificar se o e-mail ou login já existe
-    $validator = \Validator::make($request->all(), [
-        'name' => 'required|string|max:255', 
-        'gender' => 'required|string|in:male,female,other',
-        'email' => 'required|email|max:255',
-        'birth_date' => 'required|date',
-        'login' => 'required|max:255',
-        'password' => 'required|min:8',
-    ]);
+    public function store(Request $request)
+    {
+        // Validação personalizada para verificar se o e-mail ou login já existe
+        // $validator = Validator::make($request->all(), [
+        //     'name' => 'required|string|max:255', 
+        //     'gender' => 'required|string|in:male,female,other',
+        //     'email' => 'required|email|max:255',
+        //     'birth_date' => 'required|date',
+        //     'login' => 'required|max:255',
+        //     'password' => 'required|min:8',
+        // ]);
 
-    // Verificar se o e-mail já existe
-    if (\App\Models\User::where('email', $request->email)->exists()) {
+        // Verificar se o e-mail já existe
+        if (\App\Models\User::where('email', $request->email)->exists()) {
+            return response()->json([
+                'message' => 'The email address is already registered.'
+            ], 409); // Código de conflito
+        }
+
+        // Verificar se o login já existe
+        if (\App\Models\UserCredentials::where('login', $request->login)->exists()) {
+            return response()->json([
+                'message' => 'The login is already in use.'
+            ], 409); // Código de conflito
+        }
+
+        // Criar o usuário
+        $user = \App\Models\User::create([
+            'name' => $request->name,
+            'gender' => $request->gender,
+            'email' => $request->email,
+            'birth_date' => $request->birth_date,
+        ]);
+
+        // Criar as credenciais
+        $credential = UserCredentials::create([
+            'user_id' => $user->id,
+            'login' => $request->login,
+            'password' => Hash::make($request->password),
+        ]);
+
+        // Retornar resposta de sucesso
         return response()->json([
-            'message' => 'The email address is already registered.'
-        ], 409); // Código de conflito
+            'user' => $user,
+            'credentials' => $credential,
+        ], 201);
     }
-
-    // Verificar se o login já existe
-    if (\App\Models\UserCredentials::where('login', $request->login)->exists()) {
-        return response()->json([
-            'message' => 'The login is already in use.'
-        ], 409); // Código de conflito
-    }
-
-    // Criar o usuário
-    $user = \App\Models\User::create([
-        'name' => $request->name,
-        'gender' => $request->gender,
-        'email' => $request->email,
-        'birth_date' => $request->birth_date,
-    ]);
-
-    // Criar as credenciais
-    $credential = UserCredentials::create([
-        'user_id' => $user->id,
-        'login' => $request->login,
-        'password' => Hash::make($request->password),
-    ]);
-
-    // Retornar resposta de sucesso
-    return response()->json([
-        'user' => $user,
-        'credentials' => $credential,
-    ], 201);
-}
 
     /**
      * Display the specified user credential.
@@ -129,5 +130,26 @@ public function store(Request $request)
         $credential->delete();
 
         return response()->json(['message' => 'User credential deleted successfully.']);
+    }
+
+    /**
+     * Change the password of the authenticated user.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function changePass(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|min:8',
+        ]);
+
+        $userId = Auth::id();
+        $credential = UserCredentials::where('user_id', $userId)->firstOrFail();
+        $credential->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return response()->json(['message' => 'Password changed successfully.']);
     }
 }

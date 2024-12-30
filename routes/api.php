@@ -6,9 +6,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IdeaController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\PublicProjectController;   
-use App\Http\Controllers\ReportController;   
-use App\Http\Controllers\UserController;       
+use App\Http\Controllers\PublicProjectController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Auth Routes
@@ -18,6 +18,7 @@ Route::prefix('auth')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/me', [AuthController::class, 'me']); // Protected route for the authenticated user
         Route::post('/logout', [AuthController::class, 'logout']); // Protected route for logout
+        Route::post('/change-password', [AuthController::class, 'changePassword']); // Protected route for logout
     });
 });
 
