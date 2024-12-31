@@ -35,7 +35,7 @@ class Project extends Model
 
     public function documents()
     {
-        return $this->hasMany(ProjectDocument::class);
+        return $this->hasMany(Document::class);
     }
 
     public function statusHistory()
@@ -43,4 +43,3 @@ class Project extends Model
         return $this->hasMany(ProjectStatusHistory::class);
     }
 }
-
