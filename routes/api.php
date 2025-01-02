@@ -64,6 +64,7 @@ Route::prefix('public/projects')->group(function () {
 Route::prefix('reports')->middleware('auth:api')->group(function () {
     Route::get('/project/{id}', [ReportController::class, 'projectReport']);
     Route::get('/all-projects', [ReportController::class, 'allProjects']);
+    Route::post('/complex', [ReportController::class, 'complexReport']);
 });
 
 // Meeting Routes
