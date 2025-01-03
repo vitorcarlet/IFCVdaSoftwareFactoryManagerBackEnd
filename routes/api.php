@@ -25,10 +25,12 @@ Route::prefix('auth')->group(function () {
 
 //need to use the auth middleware to protect the routes
 // Dashboard Routes
-Route::prefix('dashboard')->middleware('auth:sanctum')->group(function () {
-    Route::get('/manager', [DashboardController::class, 'manager']);
-    Route::get('/student', [DashboardController::class, 'student']);
-});
+Route::prefix('dashboard')
+    ->middleware('auth:sanctum')
+    ->group(function () {
+        Route::get('/manager', [DashboardController::class, 'manager']);
+        Route::get('/student', [DashboardController::class, 'student']);
+    });
 
 // Idea Routes
 Route::prefix('ideas')->middleware('auth:sanctum')->group(function () {
@@ -55,20 +57,20 @@ Route::prefix('projects')->middleware('auth:sanctum')->group(function () {
 });
 
 // Public Project Routes
-Route::prefix('public/projects')->group(function () {
+Route::prefix('public/projects')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [PublicProjectController::class, 'index']);
     Route::get('/{id}', [PublicProjectController::class, 'show']);
 });
 
 // Report Routes
-Route::prefix('reports')->middleware('auth:api')->group(function () {
+Route::prefix('reports')->middleware('auth:sanctum')->group(function () {
     Route::get('/project/{id}', [ReportController::class, 'projectReport']);
     Route::get('/all-projects', [ReportController::class, 'allProjects']);
     Route::post('/complex', [ReportController::class, 'complexReport']);
 });
 
 // Meeting Routes
-Route::prefix('meetings')->middleware('auth:api')->group(function () {
+Route::prefix('meetings')->middleware('auth:sanctum')->group(function () {
     Route::post('/', [MeetingController::class, 'store']);
     Route::get('/all', [MeetingController::class, 'index']);
     Route::get('/my-meetings', [MeetingController::class, 'myMeetings']);
@@ -80,7 +82,7 @@ Route::prefix('meetings')->middleware('auth:api')->group(function () {
 });
 
 // User Routes
-Route::prefix('users')->group(function () {
+Route::prefix('users')->middleware('auth:sanctum')->group(function () {
     Route::post('/register', [UserController::class, 'store']);
     Route::get('/', [UserController::class, 'index']);
     Route::get('/{id}', [UserController::class, 'show']);

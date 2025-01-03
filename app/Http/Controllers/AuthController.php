@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\UserCredentials;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -54,15 +56,24 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'login' => 'required',
             'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user_credentialsRequest = $request->only('login', 'password');
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        $user_credentials = UserCredentials::where('login', $user_credentialsRequest['login'])->first();
+
+        if (!$user_credentials) {
+            return response()->json(['error' => 'Invalid userCred'], 401);
+        }
+        Log::info('User credentials:', ['login' => $user_credentialsRequest['login'], 'user_credentials' => $user_credentials]);
+
+        if (!$user_credentials || !Hash::check($request->password, $user_credentials->password)) {
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
+
+        $user = User::find($user_credentials->user_id);
 
         $token = $user->createToken('authToken')->plainTextToken;
 

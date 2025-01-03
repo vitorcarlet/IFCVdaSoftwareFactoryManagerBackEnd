@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Project;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportController extends Controller
 {
@@ -76,7 +77,7 @@ class ReportController extends Controller
         $validatedData = $request->validate([
             'start_date'   => 'required|date',
             'end_date'     => 'required|date|after_or_equal:start_date',
-            'technologies' => 'required|array', 
+            'technologies' => 'required|array',
             'sort_by'      => 'sometimes|string|in:name,title', // ou campos que você permitir
             'sort_order'   => 'sometimes|string|in:asc,desc'
         ]);
@@ -104,8 +105,8 @@ class ReportController extends Controller
                     $query->orWhere('technologies', 'LIKE', '%' . $tech . '%');
                 }
             })
-            ->with(['participants.user', 'manager']); 
-            // 'participants.user' depende de como está seu relacionamento
+            ->with(['participants.user', 'manager']);
+        // 'participants.user' depende de como está seu relacionamento
 
         // Ordenação (aqui estou assumindo que 'name' é um campo, mas você pode adaptar)
         $projects = $projectsQuery->orderBy($sortBy, $sortOrder)->get();
@@ -130,8 +131,8 @@ class ReportController extends Controller
         // Usando a biblioteca barryvdh/laravel-dompdf (instale via Composer se não tiver):
         // composer require barryvdh/laravel-dompdf
         // Crie uma view em resources/views/reports/complex_report.blade.php, por exemplo.
-        
-        $pdf = PDF::loadView('reports.complex_report', $data);
+
+        $pdf = Pdf::loadView('reports.complex_report', $data);
 
         // Retorna o PDF para download:
         return $pdf->download('relatorio-projetos.pdf');
