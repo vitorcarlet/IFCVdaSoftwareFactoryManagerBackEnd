@@ -22,6 +22,21 @@ Route::prefix('auth')->group(function () {
     });
 });
 
+// Project Routes
+Route::prefix('projects')->middleware('auth:sanctum')->group(function () {
+    Route::post('/add', [ProjectController::class, 'store'])->name('projects.store');
+    Route::get('/', [ProjectController::class, 'index']);
+    Route::get('/my-projects', [ProjectController::class, 'myProjects']);
+    Route::get('/{id}', [ProjectController::class, 'show']);
+    Route::put('/{id}', [ProjectController::class, 'update']);
+    Route::delete('/{id}', [ProjectController::class, 'destroy']);
+    Route::post('/{id}/add-hours', [ProjectController::class, 'addHours']);
+    Route::get('/{id}/hours-and-deadlines', [ProjectController::class, 'hoursAndDeadlines']);
+    Route::get('/pending', [ProjectController::class, 'pendingProjects']);
+    Route::post('/{id}/approve', [ProjectController::class, 'approve']);
+    Route::post('/{id}/reject', [ProjectController::class, 'reject']);
+});
+
 
 //need to use the auth middleware to protect the routes
 // Dashboard Routes
@@ -42,19 +57,21 @@ Route::prefix('ideas')->middleware('auth:sanctum')->group(function () {
 });
 
 // Project Routes
-Route::prefix('projects')->middleware('auth:sanctum')->group(function () {
-    Route::post('/', [ProjectController::class, 'store']);
-    Route::get('/', [ProjectController::class, 'index']);
-    Route::get('/my-projects', [ProjectController::class, 'myProjects']);
-    Route::get('/{id}', [ProjectController::class, 'show']);
-    Route::put('/{id}', [ProjectController::class, 'update']);
-    Route::delete('/{id}', [ProjectController::class, 'destroy']);
-    Route::post('/{id}/add-hours', [ProjectController::class, 'addHours']);
-    Route::get('/{id}/hours-and-deadlines', [ProjectController::class, 'hoursAndDeadlines']);
-    Route::get('/pending', [ProjectController::class, 'pendingProjects']);
-    Route::post('/{id}/approve', [ProjectController::class, 'approve']);
-    Route::post('/{id}/reject', [ProjectController::class, 'reject']);
-});
+// Route::prefix('projects')->middleware('auth:sanctum')->group(function () {
+//     Route::post('/add', [ProjectController::class, 'store']);
+//     Route::get('/', [ProjectController::class, 'index']);
+//     Route::get('/my-projects', [ProjectController::class, 'myProjects']);
+//     Route::get('/{id}', [ProjectController::class, 'show']);
+//     Route::put('/{id}', [ProjectController::class, 'update']);
+//     Route::delete('/{id}', [ProjectController::class, 'destroy']);
+//     Route::post('/{id}/add-hours', [ProjectController::class, 'addHours']);
+//     Route::get('/{id}/hours-and-deadlines', [ProjectController::class, 'hoursAndDeadlines']);
+//     Route::get('/pending', [ProjectController::class, 'pendingProjects']);
+//     Route::post('/{id}/approve', [ProjectController::class, 'approve']);
+//     Route::post('/{id}/reject', [ProjectController::class, 'reject']);
+// });
+
+
 
 // Public Project Routes
 Route::prefix('public/projects')->middleware('auth:sanctum')->group(function () {

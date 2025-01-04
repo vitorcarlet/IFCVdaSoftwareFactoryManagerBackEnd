@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\UserCredentials;
+use App\Models\User;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -47,6 +49,24 @@ class UserController extends Controller
         //     'password' => 'required|min:8',
         // ]);
 
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+        ], [
+            'name.required' => 'O campo nome é obrigatório.',
+            'email.required' => 'O campo e-mail é obrigatório.',
+            'email.unique' => 'O e-mail já está em uso.',
+            'password.required' => 'O campo senha é obrigatório.',
+            'password.confirmed' => 'As senhas não coincidem.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+
+
         // Verificar se o e-mail já existe
         if (\App\Models\User::where('email', $request->email)->exists()) {
             return response()->json([
@@ -73,7 +93,7 @@ class UserController extends Controller
         $credential = UserCredentials::create([
             'user_id' => $user->id,
             'login' => $request->login,
-            'password' => Hash::make($request->password),
+            'password' => $request->password,
         ]);
 
         // Retornar resposta de sucesso
@@ -91,8 +111,8 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $credential = UserCredentials::with('user')->findOrFail($id);
-        return response()->json($credential);
+        $user = User::find($id);
+        return response()->json($user);
     }
 
     /**

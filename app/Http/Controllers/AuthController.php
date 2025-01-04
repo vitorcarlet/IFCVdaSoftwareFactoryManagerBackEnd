@@ -24,31 +24,37 @@ class AuthController extends Controller
     /**
      * Handle user registration request.
      */
-    public function register(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+    // public function register(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'name' => 'required|string|max:255',
+    //         'email' => 'required|string|email|max:255|unique:users',
+    //         'password' => 'required|string|min:8|confirmed',
+    //     ], [
+    //         'name.required' => 'O campo nome é obrigatório.',
+    //         'email.required' => 'O campo e-mail é obrigatório.',
+    //         'email.unique' => 'O e-mail já está em uso.',
+    //         'password.required' => 'O campo senha é obrigatório.',
+    //         'password.confirmed' => 'As senhas não coincidem.',
+    //     ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
+    //     if ($validator->fails()) {
+    //         return response()->json($validator->errors(), 400);
+    //     }
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+    //     $user = User::create([
+    //         'name' => $request->name,
+    //         'email' => $request->email,
+    //         'password' => Hash::make($request->password),
+    //     ]);
 
-        $token = $user->createToken('authToken')->accessToken;
+    //     $token = $user->createToken('authToken')->accessToken;
 
-        return response()->json([
-            'user' => $user,
-            'token' => $token,
-        ]);
-    }
+    //     return response()->json([
+    //         'user' => $user,
+    //         'token' => $token,
+    //     ]);
+    // }
 
     /**
      * Handle login request.
@@ -56,8 +62,8 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'login' => 'required',
-            'password' => 'required',
+            'login' => 'required|string',
+            'password' => 'required|string',
         ]);
 
         $user_credentialsRequest = $request->only('login', 'password');
@@ -67,7 +73,6 @@ class AuthController extends Controller
         if (!$user_credentials) {
             return response()->json(['error' => 'Invalid userCred'], 401);
         }
-        Log::info('User credentials:', ['login' => $user_credentialsRequest['login'], 'user_credentials' => $user_credentials]);
 
         if (!$user_credentials || !Hash::check($request->password, $user_credentials->password)) {
             return response()->json(['error' => 'Invalid credentials'], 401);

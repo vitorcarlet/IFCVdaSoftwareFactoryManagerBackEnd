@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Exception;
 
 class ProjectController extends Controller
 {
@@ -28,22 +32,81 @@ class ProjectController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        // Validate the input
+        $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'business_environment' => 'nullable|string',
             'business_need' => 'nullable|string',
             'objective' => 'nullable|string',
-            'technologies' => 'nullable|string',
+            'technologies.*' => 'nullable|string',
             'stakeholders' => 'nullable|string',
             'status' => 'required|string',
             'is_public' => 'boolean',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'manager_id' => 'required|exists:users,id',
+            'participants' => 'array',
+            'participants.*' => 'exists:users,id',
         ]);
 
-        $project = Project::create($validated);
-        return response()->json($project, 201);
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
+        $technologies = $this->transformTechnologies($validated['technologies']);
+
+        if ($validated)
+
+            // Use a database transaction for consistency
+            try {
+                DB::beginTransaction();
+
+                // Create the project
+                $project = Project::create([
+                    'title' => $validated['title'],
+                    'business_environment' => $validated['business_environment'] ?? null,
+                    'business_need' => $validated['business_need'] ?? null,
+                    'objective' => $validated['objective'] ?? null,
+                    'technologies' => $technologies ?? null,
+                    'stakeholders' => $validated['stakeholders'] ?? null,
+                    'status' => $validated['status'],
+                    'is_public' => $validated['is_public'] ?? false,
+                    'start_date' => $validated['start_date'] ?? null,
+                    'end_date' => $validated['end_date'] ?? null,
+                    'manager_id' => $validated['manager_id'],
+                ]);
+
+                // Attach participants if provided
+                if (!empty($validated['participants'])) {
+                    $project->participants()->sync($validated['participants']);
+                }
+
+                DB::commit();
+
+                // Return the created project with its relationships
+                return response()->json($project->load('participants'), 201);
+            } catch (Exception $e) {
+                DB::rollBack();
+                // Log the error for debugging
+                Log::error('Error creating project: ' . $e->getMessage());
+
+                return response()->json([
+                    'message' => 'An error occurred while creating the project.',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+    }
+    protected function transformTechnologies($technologies)
+    {
+        if (empty($technologies)) {
+            return null;
+        }
+        return implode(', ', $technologies);
     }
 
     public function update(Request $request, $id)
