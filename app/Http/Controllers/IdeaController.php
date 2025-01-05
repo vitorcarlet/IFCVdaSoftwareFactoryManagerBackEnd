@@ -13,7 +13,7 @@ class IdeaController extends Controller
      */
     public function index()
     {
-        $ideas = ProjectIdea::with('proponent', 'reviews')->get();
+        $ideas = ProjectIdea::all();
         return response()->json($ideas, Response::HTTP_OK);
     }
 
@@ -38,7 +38,7 @@ class IdeaController extends Controller
      */
     public function show($id)
     {
-        $idea = ProjectIdea::with('proponent', 'reviews')->find($id);
+        $idea = ProjectIdea::find($id);
 
         if (!$idea) {
             return response()->json(['message' => 'Idea not found'], Response::HTTP_NOT_FOUND);
