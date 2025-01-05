@@ -14,8 +14,16 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        $projects = Project::all();
-        return response()->json($projects);
+        try {
+            $projects = Project::all();
+            return response()->json($projects);
+        } catch (Exception $e) {
+            Log::error('Error fetching projects: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'An error occurred while fetching projects',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
     public function myProjects()
     {
@@ -111,8 +119,10 @@ class ProjectController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Find the project or fail
         $project = Project::findOrFail($id);
 
+        // Validate the incoming request
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
             'business_environment' => 'nullable|string',
@@ -124,10 +134,13 @@ class ProjectController extends Controller
             'is_public' => 'boolean',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+            'manager_id' => 'nullable|exists:users,id', // Ensure manager_id exists in users table
         ]);
 
+        // Update the project with only the fields provided
         $project->update($validated);
 
+        // Return the updated project as JSON response
         return response()->json($project);
     }
 
@@ -161,14 +174,14 @@ class ProjectController extends Controller
 
     public function pendingProjects()
     {
-        $projects = Project::where('status', 'pending')->get();
+        $projects = Project::where('status', 'Pendente')->get();
         return response()->json($projects);
     }
 
     public function approve($id)
     {
         $project = Project::findOrFail($id);
-        $project->status = 'approved';
+        $project->status = 'Em progresso';
         $project->save();
 
         return response()->json(['message' => 'Project approved successfully.']);
@@ -177,7 +190,7 @@ class ProjectController extends Controller
     public function reject($id)
     {
         $project = Project::findOrFail($id);
-        $project->status = 'rejected';
+        $project->status = 'Rejeitado';
         $project->save();
 
         return response()->json(['message' => 'Project rejected successfully.']);
