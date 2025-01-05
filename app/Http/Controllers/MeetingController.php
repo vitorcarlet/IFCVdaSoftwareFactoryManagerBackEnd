@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Meeting;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Exception;
+use Carbon\Carbon;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class MeetingController extends Controller
 {
@@ -38,40 +43,75 @@ class MeetingController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'date' => 'required|date',
-            'project_id' => 'required|exists:projects,id',
-        ]);
+        try {
+            DB::beginTransaction();
 
-        $meeting = Meeting::create($validated);
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'desc' => 'nullable|string',
+                'status' => 'required|string',
+                'start_date' => 'required|date',
+                'project_id' => 'required|exists:projects,id',
+                'participants' => 'array|nullable|exists:users,id',
+                'manager' => 'required|exists:users,id',
+            ]);
+            $validated['start_date'] = Carbon::parse($request->input('start_date'))->format('Y-m-d H:i:s');
 
-        // Attach participants if provided
-        if ($request->has('participants')) {
-            $meeting->participants()->sync($request->input('participants'));
+            $meeting = Meeting::create($validated);
+
+
+
+            // Attach participants if provided
+            if ($request->has('participants')) {
+                $meeting->participants()->sync($request->input('participants'));
+            }
+
+            DB::commit();
+            return response()->json($meeting, 201);
+        } catch (ValidationException $e) {
+            DB::rollback();
+            return response()->json(['error' => $e->errors()], 422);
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'error' => 'An error occurred while creating the meeting',
+                'message' => $e->getMessage() // Inclui a mensagem do erro para depuração
+            ], 500);
         }
-
-        return response()->json($meeting, 201);
     }
 
     public function update(Request $request, $id)
     {
-        $meeting = Meeting::findOrFail($id);
+        try {
+            DB::beginTransaction();
 
-        $validated = $request->validate([
-            'title' => 'nullable|string|max:255',
-            'date' => 'nullable|date',
-            'project_id' => 'nullable|exists:projects,id',
-        ]);
+            $meeting = Meeting::findOrFail($id);
 
-        $meeting->update($validated);
+            $validated = $request->validate([
+                'title' => 'nullable|string|max:255',
+                'date' => 'nullable|date',
+                'project_id' => 'nullable|exists:projects,id',
+            ]);
 
-        // Update participants if provided
-        if ($request->has('participants')) {
-            $meeting->participants()->sync($request->input('participants'));
+            $meeting->update($validated);
+
+            // Update participants if provided
+            if ($request->has('participants')) {
+                $meeting->participants()->sync($request->input('participants'));
+            }
+
+            DB::commit();
+            return response()->json($meeting);
+        } catch (ModelNotFoundException $e) {
+            DB::rollback();
+            return response()->json(['error' => 'Meeting not found'], 404);
+        } catch (ValidationException $e) {
+            DB::rollback();
+            return response()->json(['error' => $e->errors()], 422);
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json(['error' => 'An error occurred while updating the meeting'], 500);
         }
-
-        return response()->json($meeting);
     }
 
     public function destroy($id)
@@ -94,4 +134,3 @@ class MeetingController extends Controller
         return response()->json(['message' => 'Document uploaded successfully.']);
     }
 }
-
