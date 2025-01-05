@@ -21,7 +21,7 @@ class CreateProjectsTable extends Migration
             $table->text('objective'); // Project objectives
             $table->string('technologies')->nullable(); // Technologies (can be a FK if needed later)
             $table->string('stakeholders')->nullable(); // Stakeholders (can be a FK if needed later)
-            $table->enum('status', ['Em Progresso', 'Concluído', 'Pendente'])->default('Em Progresso'); // Project status
+            $table->enum('status', ['Em Progresso', 'Concluído', 'Pendente', 'Rejeitado'])->default('Pendente'); // Project status
             $table->boolean('is_public')->default(false); // Is the project public?
             $table->timestamp('start_date')->nullable(); // Project start date
             $table->timestamp('end_date')->nullable(); // Project end date
@@ -40,4 +40,3 @@ class CreateProjectsTable extends Migration
         Schema::dropIfExists('projects');
     }
 }
-

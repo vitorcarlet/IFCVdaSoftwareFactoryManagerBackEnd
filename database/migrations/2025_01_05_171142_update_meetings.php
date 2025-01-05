@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('meetings', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('meetings', function (Blueprint $table) {
+            $table->json('participants')->nullable()->change();
         });
     }
 
