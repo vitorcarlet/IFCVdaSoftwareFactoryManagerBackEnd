@@ -56,13 +56,43 @@ class MeetingController extends Controller
                 'manager' => 'required|exists:users,id',
             ]);
             $validated['start_date'] = Carbon::parse($request->input('start_date'))->format('Y-m-d H:i:s');
+            // Check if any participant has a conflicting meeting
+            $startDate = Carbon::parse($request->input('start_date'));
+            // Check conflicts for participants
 
+
+            // Check conflicts for manager
+            $conflictingManagerMeetings = Meeting::whereHas('participants', function ($query) use ($request) {
+                $query->where('participant_id', $request->input('manager'));
+            })
+                ->where(function ($query) use ($startDate) {
+                    $query->whereBetween('start_date', [
+                        $startDate->copy()->subMinutes(30),
+                        $startDate->copy()->addMinutes(30)
+                    ]);
+                })->exists();
+
+            if ($conflictingManagerMeetings) {
+                throw new Exception('One or more participants or the manager have a meeting scheduled within 30 minutes of this time.');
+            }
             $meeting = Meeting::create($validated);
 
 
 
             // Attach participants if provided
             if ($request->has('participants')) {
+                $conflictingParticipantMeetings = Meeting::whereHas('participants', function ($query) use ($request) {
+                    $query->whereIn('participant_id', $request->input('participants', []));
+                })
+                    ->where(function ($query) use ($startDate) {
+                        $query->whereBetween('start_date', [
+                            $startDate->copy()->subMinutes(30),
+                            $startDate->copy()->addMinutes(30)
+                        ]);
+                    })->exists();
+                if ($conflictingParticipantMeetings) {
+                    throw new Exception('One or more participants or the manager have a meeting scheduled within 30 minutes of this time.');
+                }
                 $meeting->participants()->sync($request->input('participants'));
             }
 

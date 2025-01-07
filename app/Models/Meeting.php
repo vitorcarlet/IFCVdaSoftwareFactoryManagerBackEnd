@@ -30,13 +30,13 @@ class Meeting extends Model
 
     public function participants()
     {
-        return $this->belongsToMany(User::class, 'meetings_participants')
-                    ->withTimestamps();
+        return $this->belongsToMany(User::class, 'meeting_participant')
+            ->withTimestamps();
     }
 
     public function documents()
     {
         return $this->belongsToMany(Document::class, 'meetings_documents')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 }

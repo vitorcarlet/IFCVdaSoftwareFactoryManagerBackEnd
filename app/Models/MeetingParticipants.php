@@ -14,7 +14,7 @@ class MeetingParticipant extends Model
      *
      * @var string
      */
-    protected $table = 'meetings_participants';
+    protected $table = 'meeting_participant';
 
     /**
      * The attributes that are mass assignable.
