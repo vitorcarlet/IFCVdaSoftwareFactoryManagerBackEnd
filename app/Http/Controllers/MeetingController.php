@@ -62,9 +62,7 @@ class MeetingController extends Controller
 
 
             // Check conflicts for manager
-            $conflictingManagerMeetings = Meeting::whereHas('participants', function ($query) use ($request) {
-                $query->where('participant_id', $request->input('manager'));
-            })
+            $conflictingManagerMeetings = Meeting::where('manager', $request->input('manager'))
                 ->where(function ($query) use ($startDate) {
                     $query->whereBetween('start_date', [
                         $startDate->copy()->subMinutes(30),
