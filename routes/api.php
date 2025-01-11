@@ -9,6 +9,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PublicProjectController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PermissionsController;
 use Illuminate\Support\Facades\Route;
 
 // Auth Routes
@@ -107,4 +108,13 @@ Route::prefix('users')->middleware('auth:sanctum')->group(function () {
     Route::delete('/{id}', [UserController::class, 'destroy']);
     Route::put('/{id}/edit', [UserController::class, 'edit']);
     Route::get('/{id}/history', [UserController::class, 'history']);
+});
+
+Route::prefix('permissions')->middleware('auth:sanctum')->group(function () {
+    Route::get('/', [PermissionsController::class, 'index']);
+    Route::post('/', [PermissionsController::class, 'store']);
+    Route::get('/default', [PermissionsController::class, 'createDefaultPermissions']);
+    Route::get('/{permission}', [PermissionsController::class, 'show']);
+    Route::put('/{permission}', [PermissionsController::class, 'update']);
+    Route::delete('/{permission}', [PermissionsController::class, 'destroy']);
 });
