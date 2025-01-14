@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\UserCredentials;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Exception;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+
 
 class UserController extends Controller
 {
@@ -81,26 +84,42 @@ class UserController extends Controller
             ], 409); // Código de conflito
         }
 
+        try {
+            DB::beginTransaction();
+
+            $user = \App\Models\User::create([
+                'name' => $request->name,
+                'gender' => $request->gender,
+                'email' => $request->email,
+                'birth_date' => $request->birth_date,
+            ]);
+
+            // Criar as credenciais
+            $credential = UserCredentials::create([
+                'user_id' => $user->id,
+                'login' => $request->login,
+                'password' => $request->password,
+            ]);
+
+            $user->assignRole('student');
+
+            DB::commit();
+
+            // Retornar resposta de sucesso
+            return response()->json([
+                'user' => $user,
+                'credentials' => $credential,
+            ], 201);
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json([
+                'message' => 'An error occurred while creating the user.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+
         // Criar o usuário
-        $user = \App\Models\User::create([
-            'name' => $request->name,
-            'gender' => $request->gender,
-            'email' => $request->email,
-            'birth_date' => $request->birth_date,
-        ]);
 
-        // Criar as credenciais
-        $credential = UserCredentials::create([
-            'user_id' => $user->id,
-            'login' => $request->login,
-            'password' => $request->password,
-        ]);
-
-        // Retornar resposta de sucesso
-        return response()->json([
-            'user' => $user,
-            'credentials' => $credential,
-        ], 201);
     }
 
     /**
