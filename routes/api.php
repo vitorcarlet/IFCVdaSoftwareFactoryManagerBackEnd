@@ -113,7 +113,6 @@ Route::prefix('users')->middleware('auth:sanctum')->group(function () {
 Route::prefix('permissions')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [PermissionsController::class, 'index']);
     Route::post('/', [PermissionsController::class, 'store']);
-    Route::get('/default', [PermissionsController::class, 'createDefaultPermissions']);
     Route::get('/{permission}', [PermissionsController::class, 'show']);
     Route::put('/{permission}', [PermissionsController::class, 'update']);
     Route::delete('/{permission}', [PermissionsController::class, 'destroy']);
