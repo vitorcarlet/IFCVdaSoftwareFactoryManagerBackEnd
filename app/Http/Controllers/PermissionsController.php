@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Auth;
 
 class PermissionsController extends Controller
 {
@@ -73,13 +74,29 @@ class PermissionsController extends Controller
      */
     public function update(Request $request, Role $role)
     {
+        $userId = Auth::id();
+        $user = \App\Models\User::findOrFail($userId);
+        if (!$user->can('edit permissions')) {
+            return response()->json(['error' => 'You do not have permission to manage roles'], 403);
+        }
+
         $request->validate([
-            'name' => 'required|string|unique:roles,name,' . $role->id
+            'name' => 'required|string|unique:roles,name,' . $role->id,
+            'permissions' => 'required|array', // Ensure 'permissions' is an array
+            'permissions.*' => 'string|exists:permissions,name', // Each permission must exist
         ]);
 
+        // Update the role name
         $role->update(['name' => $request->name]);
 
-        return response()->json($role);
+        // Sync the permissions for the role
+        $role->syncPermissions($request->permissions);
+
+        // Return the updated role and its permissions
+        return response()->json([
+            'role' => $role,
+            'permissions' => $role->permissions,
+        ]);
     }
 
     /**

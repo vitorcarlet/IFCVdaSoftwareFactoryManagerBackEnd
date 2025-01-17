@@ -21,6 +21,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'delete users',
             'view reports',
             'manage roles',
+            'manage meetings',
+            'manage projects',
         ];
 
         // Criar permissões
