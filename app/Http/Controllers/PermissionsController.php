@@ -55,14 +55,38 @@ class PermissionsController extends Controller
     }
 
     /**
+     * Display the authenticated user's permissions.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showMyPermissions()
+    {
+        $user = Auth::user();
+        $permissions = $user->permissions;
+
+        return response()->json([
+            'permissions' => $permissions
+        ]);
+    }
+
+    /**
      * Display the specified role.
      *
      * @param  Role  $role
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Role $role)
+    public function show($userId)
     {
-        return response()->json($role);
+        $authId = Auth::id();
+        $authUser = \App\Models\User::findOrFail($authId);
+        if (!$authUser->can('edit permissions')) {
+            return response()->json(['error' => 'You do not have permission to manage roles'], 403);
+        }
+        $user = \App\Models\User::findOrFail($userId);
+        $permissions = $user->permissions;
+        return response()->json([
+            'permissions' => $permissions
+        ]);
     }
 
     /**
@@ -72,30 +96,34 @@ class PermissionsController extends Controller
      * @param  Role  $role
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, Role $role)
+    public function update(Request $request, $userId)
     {
-        $userId = Auth::id();
-        $user = \App\Models\User::findOrFail($userId);
-        if (!$user->can('edit permissions')) {
+        $authId = Auth::id();
+        $authUser = \App\Models\User::findOrFail($authId);
+        if (!$authUser->can('edit permissions')) {
             return response()->json(['error' => 'You do not have permission to manage roles'], 403);
         }
 
+        $user = \App\Models\User::findOrFail($userId);
+
+
         $request->validate([
-            'name' => 'required|string|unique:roles,name,' . $role->id,
             'permissions' => 'required|array', // Ensure 'permissions' is an array
             'permissions.*' => 'string|exists:permissions,name', // Each permission must exist
         ]);
 
         // Update the role name
-        $role->update(['name' => $request->name]);
-
-        // Sync the permissions for the role
-        $role->syncPermissions($request->permissions);
+        foreach ($request->permissions as $permissionName => $value) {
+            if ($value === true) {
+                $user->givePermissionTo($permissionName);
+            } else {
+                $user->revokePermissionTo($permissionName);
+            }
+        }
 
         // Return the updated role and its permissions
         return response()->json([
-            'role' => $role,
-            'permissions' => $role->permissions,
+            'permissions' => $user->permissions,
         ]);
     }
 

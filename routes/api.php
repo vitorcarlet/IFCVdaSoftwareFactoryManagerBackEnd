@@ -57,23 +57,6 @@ Route::prefix('ideas')->middleware('auth:sanctum')->group(function () {
     Route::delete('/{id}', [IdeaController::class, 'destroy']);
 });
 
-// Project Routes
-// Route::prefix('projects')->middleware('auth:sanctum')->group(function () {
-//     Route::post('/add', [ProjectController::class, 'store']);
-//     Route::get('/', [ProjectController::class, 'index']);
-//     Route::get('/my-projects', [ProjectController::class, 'myProjects']);
-//     Route::get('/{id}', [ProjectController::class, 'show']);
-//     Route::put('/{id}', [ProjectController::class, 'update']);
-//     Route::delete('/{id}', [ProjectController::class, 'destroy']);
-//     Route::post('/{id}/add-hours', [ProjectController::class, 'addHours']);
-//     Route::get('/{id}/hours-and-deadlines', [ProjectController::class, 'hoursAndDeadlines']);
-//     Route::get('/pending', [ProjectController::class, 'pendingProjects']);
-//     Route::post('/{id}/approve', [ProjectController::class, 'approve']);
-//     Route::post('/{id}/reject', [ProjectController::class, 'reject']);
-// });
-
-
-
 // Public Project Routes
 Route::prefix('public/projects')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [PublicProjectController::class, 'index']);
@@ -111,9 +94,10 @@ Route::prefix('users')->middleware('auth:sanctum')->group(function () {
 });
 
 Route::prefix('permissions')->middleware('auth:sanctum')->group(function () {
-    Route::get('/', [PermissionsController::class, 'index']);
-    Route::post('/', [PermissionsController::class, 'store']);
-    Route::get('/{permission}', [PermissionsController::class, 'show']);
-    Route::put('/{permission}', [PermissionsController::class, 'update']);
-    Route::delete('/{permission}', [PermissionsController::class, 'destroy']);
+    //Route::get('/', [PermissionsController::class, 'index']);
+    //Route::post('/', [PermissionsController::class, 'store']);
+    Route::get('/{userId}', [PermissionsController::class, 'show']);
+    Route::get('/', [PermissionsController::class, 'showMyPermissions']);
+    Route::put('/{userId}', [PermissionsController::class, 'update']);
+    //Route::delete('/{permission}', [PermissionsController::class, 'destroy']);
 });
