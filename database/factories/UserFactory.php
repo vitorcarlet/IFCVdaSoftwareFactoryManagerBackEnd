@@ -26,6 +26,7 @@ class UserFactory extends Factory
             'cpf' => $this->faker->unique()->regexify('[0-9]{11}'), // CPF fictício (11 dígitos únicos)
             'birth_date' => $this->faker->date('Y-m-d', '2005-01-01'), // Data de nascimento (até 2005 para 18+)
             'gender' => $this->faker->randomElement(['male', 'female', 'other']), // Gênero aleatório
+            'email' => $this->faker->unique()->safeEmail(), // Gera um email único
             'is_active' => $this->faker->boolean(80), // 80% de chance de ser true
             'registration_number' => $this->faker->unique()->regexify('[A-Z0-9]{10}'), // Número de registro único
         ];
