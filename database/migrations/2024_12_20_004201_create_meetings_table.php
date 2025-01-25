@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('meetings', function (Blueprint $table) {
+        Schema::create('meetings', function (Blueprint $table) {
+            $table->id();
             $table->string('title');
             $table->text('desc');
             $table->dateTime('start_date');
@@ -19,6 +20,7 @@ return new class extends Migration
             $table->string('manager');
             $table->json('participants')->nullable();
             $table->foreignId('project_id')->constrained('projects');
+            $table->timestamps();
         });
     }
 
