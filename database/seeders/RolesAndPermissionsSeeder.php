@@ -47,5 +47,13 @@ class RolesAndPermissionsSeeder extends Seeder
         if ($user) {
             $user->assignRole('admin');
         }
-    }
+
+        $superAdmin = Role::firstOrCreate(['name' => 'Super Admin']);
+        $superAdmin->syncPermissions(Permission::all());
+
+        $superAdminUser = \App\Models\User::where('id', 3)->first();
+        if ($superAdminUser) {
+            $superAdminUser->assignRole('Super Admin');
+        }
+    }   
 }

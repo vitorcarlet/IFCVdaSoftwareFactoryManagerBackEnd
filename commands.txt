@@ -1,0 +1,4 @@
+$user = \App\Models\User::factory()->create();
+
+sail artisan tinker
+sail artisan migrate
